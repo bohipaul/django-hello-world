@@ -1,18 +1,9 @@
 # example/views.py
 from datetime import datetime
-
-from django.http import HttpResponse
+from django.shortcuts import render
 
 def index(request):
-    now = datetime.now()
-    html = f'''
-    <html>
-        <body>
-            <h1>Hello from Vercel!</h1>
-            <p>The current time is { now }.</p>
-            <p>Welcome to our Django application running on Vercel.</p>
-            <p>Enjoy your stay!</p>
-        </body>
-    </html>
-    '''
-    return HttpResponse(html)
+    context = {
+        'current_time': datetime.now()
+    }
+    return render(request, 'example/index.html', context)

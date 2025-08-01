@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accueil - Django sur Vercel</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .welcome-message {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .info-box {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .current-time {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #ffd700;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Bienvenue sur Django + Vercel</h1>
+        
+        <div class="welcome-message">
+            <p>Félicitations ! Votre application Django fonctionne parfaitement sur Vercel.</p>
+            <p>Cette page d'accueil est maintenant générée depuis un fichier HTML standard.</p>
+        </div>
+
+        <div class="info-box">
+            <p class="current-time">⏰ Heure actuelle : {{ current_time }}</p>
+        </div>
+
+        <div class="info-box">
+            <h3>🎯 Fonctionnalités</h3>
+            <ul>
+                <li>Django 4.1.3 en mode serverless</li>
+                <li>Templates HTML séparés du code Python</li>
+                <li>Déploiement automatique sur Vercel</li>
+                <li>Interface moderne et responsive</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>Propulsé par Django • Hébergé sur Vercel</p>
+        </div>
+    </div>
+</body>
+</html>
