@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - DEBUG=False
+      - SECRET_KEY=${SECRET_KEY:-django-insecure-default-key}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-*}
+      - DJANGO_SETTINGS_MODULE=api.settings
+      - CREATE_SUPERUSER=${CREATE_SUPERUSER:-false}
+    restart: unless-stopped
+    volumes:
+      - static_volume:/app/staticfiles
+    labels:
+      - "coolify.managed=true"
+
+volumes:
+  static_volume:
