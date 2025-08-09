@@ -30,7 +30,8 @@ RUN mkdir -p /app/staticfiles && \
 # Switch to non-root user
 USER django
 
-# Collect static files
+# Run Django migrations and collect static files
+RUN python manage.py migrate --noinput
 RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000
