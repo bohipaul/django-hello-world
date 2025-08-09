@@ -12,7 +12,14 @@ ARG GIT_REPO=https://github.com/bohipaul/django-hello-world.git
 WORKDIR /app
 
 # Install git and build dependencies
-RUN apk add --no-cache git build-base postgresql-dev
+RUN apk add --no-cache \
+    git \
+    build-base \
+    postgresql-dev \
+    musl-dev \
+    linux-headers \
+    gcc \
+    python3-dev
 
 # Clone the project from git
 RUN git clone $GIT_REPO .
