@@ -6,20 +6,25 @@ ENV PYTHONUNBUFFERED=1
 ENV DJANGO_SETTINGS_MODULE=api.settings
 ENV PORT=3000
 
+# Build argument for git repository
+ARG GIT_REPO=https://github.com/bohipaul/django-hello-world.git
+
 WORKDIR /app
 
-# Copy requirements and install additional dependencies
-COPY requirements.txt .
+# Install git and build dependencies
+RUN apk add --no-cache git build-base postgresql-dev
+
+# Clone the project from git
+RUN git clone $GIT_REPO .
+
+# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy project files
-COPY . .
+# Run Django setup
+RUN python manage.py migrate --noinput && \
+    python manage.py collectstatic --noinput
 
-# Copy deploy script
-COPY deploy.sh .
-RUN chmod +x deploy.sh
+EXPOSE 3000
 
-EXPOSE $PORT
-
-# Use deploy script
-CMD ["./deploy.sh"]
+# Start with gunicorn
+CMD ["gunicorn", "--bind", "0.0.0.0:3000", "--workers", "4", "api.wsgi:app"]
