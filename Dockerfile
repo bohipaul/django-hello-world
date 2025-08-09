@@ -4,9 +4,7 @@ FROM python:3.11-slim
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV DJANGO_SETTINGS_MODULE=api.settings
-
-# Create non-root user
-RUN addgroup --system django && adduser --system --ingroup django django
+ENV PORT=3000
 
 WORKDIR /app
 
@@ -23,18 +21,14 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy project files
 COPY . .
 
-# Create necessary directories and set permissions
-RUN mkdir -p /app/staticfiles && \
-    chown -R django:django /app
-
-# Switch to non-root user
-USER django
+# Create staticfiles directory
+RUN mkdir -p /app/staticfiles
 
 # Run Django migrations and collect static files
 RUN python manage.py migrate --noinput
 RUN python manage.py collectstatic --noinput
 
-EXPOSE 8787
+EXPOSE $PORT
 
-# Use gunicorn for production
-CMD ["gunicorn", "--bind", "0.0.0.0:8787", "--workers", "4", "api.wsgi:app"]
+# Use gunicorn with dynamic port
+CMD gunicorn --bind 0.0.0.0:$PORT --workers 4 api.wsgi:app
