@@ -34,7 +34,7 @@ USER django
 RUN python manage.py migrate --noinput
 RUN python manage.py collectstatic --noinput
 
-EXPOSE 8000
+EXPOSE 8787
 
 # Use gunicorn for production
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "4", "api.wsgi:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8787", "--workers", "4", "api.wsgi:app"]
