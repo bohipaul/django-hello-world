@@ -6,28 +6,26 @@ ENV PYTHONUNBUFFERED=1
 ENV DJANGO_SETTINGS_MODULE=api.settings
 ENV PORT=3000
 
+# Build argument for git repository
+ARG GIT_REPO=https://github.com/bohipaul/django-hello-world.git
+
 WORKDIR /app
 
-# Install build dependencies in a single layer and clean up
-RUN apk add --no-cache --virtual .build-deps \
+# Install git and build dependencies
+RUN apk add --no-cache \
+    git \
     build-base \
     postgresql-dev \
     musl-dev \
     linux-headers \
     gcc \
-    python3-dev \
-    && apk add --no-cache \
-    postgresql-libs
+    python3-dev
 
-# Copy requirements first for better caching
-COPY requirements.txt .
+# Clone the project from git
+RUN git clone $GIT_REPO .
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt \
-    && apk del .build-deps
-
-# Copy application code
-COPY . .
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Run Django setup
 RUN python manage.py migrate --noinput && \

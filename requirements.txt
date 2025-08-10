@@ -1,6 +1,17 @@
+# Core Django (version minimale supportée pour sécurité)
 Django==4.2.16
-djangorestframework==3.15.2
-django-cors-headers==4.4.0
+
+# Production WSGI server
 gunicorn==23.0.0
-psycopg2==2.9.9
-python-dotenv==1.0.1
+
+# Uniquement si vous utilisez PostgreSQL en production
+# psycopg2==2.9.9
+
+# Uniquement si vous avez des variables d'environnement
+# python-dotenv==1.0.1
+
+# Uniquement si vous exposez des APIs REST
+# djangorestframework==3.15.2
+
+# Uniquement si vous gérez des CORS
+# django-cors-headers==4.4.0
