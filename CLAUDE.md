@@ -2,25 +2,65 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Development Commands
+## Local Development Setup
 
-### Running the Development Server
+### Virtual Environment Setup
+Create and activate a Python virtual environment:
 ```bash
+# Create virtual environment
+python3 -m venv venv
+
+# Activate virtual environment (Linux/macOS)
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### Development Commands
+
+#### Running the Development Server
+```bash
+# With virtual environment activated
 python manage.py runserver
+
+# Or using python3 directly
+python3 manage.py runserver
 ```
 The application will be available at `http://localhost:8000`.
 
-### Django Management Commands
+#### Django Management Commands
 Use the standard Django management interface:
 ```bash
+# With virtual environment activated
 python manage.py <command>
+
+# Or using python3 directly
+python3 manage.py <command>
 ```
 
 Common commands include:
 - `python manage.py migrate` - Apply database migrations
 - `python manage.py makemigrations` - Create new database migrations
-- `python manage.py createsuperuser` - Create admin user
+- `python manage.py createsuperuser` - Create admin user (interactive)
+- `python manage.py create_admin` - Create admin user (custom script with options)
 - `python manage.py collectstatic` - Collect static files
+
+#### Custom Admin Creation Script
+Use the custom `create_admin` command for automated admin user creation:
+```bash
+# Interactive mode (will prompt for password)
+python manage.py create_admin
+
+# With parameters
+python manage.py create_admin --username admin --email admin@example.com --password mypassword
+
+# Force replace existing user
+python manage.py create_admin --username admin --password newpass --force
+
+# Custom username and email
+python manage.py create_admin --username myuser --email myuser@domain.com
+```
 
 ## Architecture Overview
 
