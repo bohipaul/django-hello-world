@@ -69,3 +69,8 @@ def participant_stats(request):
         'actifs': actifs,
         'inactifs': total - actifs
     })
+
+@api_view(['GET'])
+def health_check(request):
+    """Endpoint de santé simple pour le healthcheck Docker"""
+    return Response({'status': 'ok', 'message': 'Application is healthy'})
