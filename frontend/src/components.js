@@ -9,15 +9,19 @@ export class ParticipantList {
   }
 
   async load() {
+    console.log('🔄 Chargement de la liste des participants...');
     this.loading = true;
     this.render();
     
     try {
       const response = await apiClient.getParticipants();
+      console.log('📥 Réponse API reçue:', response);
       this.participants = response.results || response;
+      console.log('👥 Participants traités:', this.participants);
+      console.log('🔢 Nombre de participants:', this.participants.length);
       this.render();
     } catch (error) {
-      console.error('Erreur lors du chargement des participants:', error);
+      console.error('❌ Erreur lors du chargement des participants:', error);
       this.renderError(error.message);
     } finally {
       this.loading = false;

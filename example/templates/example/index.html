@@ -48,6 +48,35 @@
             margin-top: 40px;
             opacity: 0.8;
         }
+        .participants-list {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .participant-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #ffd700;
+        }
+        .participant-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+        .participant-info {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin: 3px 0;
+        }
+        .no-participants {
+            text-align: center;
+            opacity: 0.7;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -63,6 +92,32 @@
             <p class="current-time">⏰ Heure actuelle : {{ current_time }}</p>
         </div>
 
+        <div class="participants-list">
+            <h3>👥 Liste des Participants</h3>
+            {% if participants %}
+                {% for participant in participants %}
+                    <div class="participant-card">
+                        <div class="participant-name">{{ participant.nom_complet }}</div>
+                        <div class="participant-info">📧 {{ participant.email }}</div>
+                        {% if participant.entreprise %}
+                            <div class="participant-info">🏢 {{ participant.entreprise }}</div>
+                        {% endif %}
+                        {% if participant.poste %}
+                            <div class="participant-info">💼 {{ participant.poste }}</div>
+                        {% endif %}
+                        {% if participant.telephone %}
+                            <div class="participant-info">📞 {{ participant.telephone }}</div>
+                        {% endif %}
+                        <div class="participant-info">📅 Inscrit le {{ participant.date_inscription|date:"d/m/Y à H:i" }}</div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-participants">
+                    <p>Aucun participant inscrit pour le moment.</p>
+                </div>
+            {% endif %}
+        </div>
+
         <div class="info-box">
             <h3>🎯 Fonctionnalités</h3>
             <ul>
@@ -70,6 +125,7 @@
                 <li>Templates HTML séparés du code Python</li>
                 <li>Déploiement automatique sur Vercel</li>
                 <li>Interface moderne et responsive</li>
+                <li>Gestion des participants</li>
             </ul>
         </div>
 

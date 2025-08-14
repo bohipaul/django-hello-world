@@ -1,5 +1,7 @@
 // Configuration API pour communiquer avec Django
-const API_BASE_URL = 'http://127.0.0.1:8000/api';
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://127.0.0.1:8000/api'  // Développement local
+  : '/api';  // Production (même domaine)
 
 class ApiClient {
   constructor(baseURL = API_BASE_URL) {

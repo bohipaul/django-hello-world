@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Frontend</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .loading {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Frontend - Gestion des Participants</h1>
+        
+        <div id="results">
+            <div class="test-result loading">
+                ⏳ Test en cours...
+            </div>
+        </div>
+
+        <h2>📊 Données des Participants</h2>
+        <div id="participants-data">
+            <div class="loading">Chargement des données...</div>
+        </div>
+    </div>
+
+    <script>
+        const results = document.getElementById('results');
+        const participantsData = document.getElementById('participants-data');
+
+        async function testAPI() {
+            try {
+                // Test de l'API
+                results.innerHTML = '<div class="test-result loading">🔍 Test de l\'API...</div>';
+                
+                const response = await fetch('/api/participants/');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                
+                // Affichage des résultats
+                results.innerHTML = `
+                    <div class="test-result success">
+                        ✅ API accessible ! Nombre de participants: ${data.results?.length || data.length || 0}
+                    </div>
+                `;
+
+                // Affichage des données
+                participantsData.innerHTML = `
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+
+                // Test de l'affichage de la liste
+                if (data.results?.length > 0 || data.length > 0) {
+                    const participants = data.results || data;
+                    let tableHTML = `
+                        <h3>👥 Liste des Participants</h3>
+                        <table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background-color: #f8f9fa;">
+                                    <th>Nom complet</th>
+                                    <th>Email</th>
+                                    <th>Entreprise</th>
+                                    <th>Poste</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    
+                    participants.forEach(participant => {
+                        tableHTML += `
+                            <tr>
+                                <td>${participant.nom_complet || `${participant.prenom} ${participant.nom}`}</td>
+                                <td>${participant.email}</td>
+                                <td>${participant.entreprise || 'N/A'}</td>
+                                <td>${participant.poste || 'N/A'}</td>
+                                <td style="color: ${participant.actif ? 'green' : 'red'}">
+                                    ${participant.actif ? '✅ Actif' : '❌ Inactif'}
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    
+                    tableHTML += `
+                            </tbody>
+                        </table>
+                    `;
+                    
+                    participantsData.innerHTML += tableHTML;
+                }
+
+            } catch (error) {
+                results.innerHTML = `
+                    <div class="test-result error">
+                        ❌ Erreur: ${error.message}
+                    </div>
+                `;
+                participantsData.innerHTML = `
+                    <div class="error">
+                        Erreur lors du chargement: ${error.message}
+                    </div>
+                `;
+                console.error('Erreur API:', error);
+            }
+        }
+
+        // Lancer le test automatiquement
+        testAPI();
+
+        console.log('🚀 Test page chargée');
+    </script>
+</body>
+</html>

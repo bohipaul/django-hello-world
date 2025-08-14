@@ -58,5 +58,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initialiser l'affichage
   participantForm.render();
+  
+  // Debug: tester l'API directement
+  console.log('🔍 Test de l\'API...');
+  apiClient.getParticipants()
+    .then(data => {
+      console.log('✅ API Response:', data);
+      console.log('📊 Nombre de participants:', data.results?.length || data.length);
+    })
+    .catch(error => {
+      console.error('❌ Erreur API:', error);
+    });
+  
   participantList.load();
 });
