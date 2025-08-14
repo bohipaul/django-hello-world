@@ -30,12 +30,17 @@ RUN addgroup -g 1001 -S django && \
     adduser -S django -u 1001 -G django
 
 # Copy all application code
-COPY --chown=django:django . .
+COPY . .
 
-# Run database migrations and collect static files as django user
-USER django
+# Run database migrations and collect static files as root
 RUN python manage.py migrate --noinput
 RUN python manage.py collectstatic --noinput --clear
+
+# Change ownership of all files to django user
+RUN chown -R django:django /app
+
+# Switch to non-root user
+USER django
 
 EXPOSE 3000
 
