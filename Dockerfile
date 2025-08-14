@@ -45,7 +45,5 @@ USER django
 
 EXPOSE 8000
 
-# Health check désactivé pour simplifier le déploiement
-
 # Start with gunicorn
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "4", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-", "api.wsgi:app"]
