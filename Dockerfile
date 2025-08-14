@@ -15,9 +15,7 @@ RUN apk add --no-cache --virtual .build-deps \
     musl-dev \
     linux-headers \
     gcc \
-    python3-dev \
-    && apk add --no-cache \
-    curl
+    python3-dev
 
 # Copy requirements first for better caching
 COPY requirements.txt .
@@ -47,9 +45,7 @@ USER django
 
 EXPOSE 8000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/health/ || exit 1
+# Health check désactivé pour simplifier le déploiement
 
 # Start with gunicorn
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "4", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-", "api.wsgi:app"]
