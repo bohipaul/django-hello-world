@@ -9,7 +9,7 @@ ENV PORT=3000
 
 WORKDIR /app
 
-# Install system dependencies including Node.js for frontend build
+# Install system dependencies
 RUN apk add --no-cache --virtual .build-deps \
     build-base \
     postgresql-dev \
@@ -17,12 +17,8 @@ RUN apk add --no-cache --virtual .build-deps \
     linux-headers \
     gcc \
     python3-dev \
-    nodejs \
-    npm \
     && apk add --no-cache \
-    postgresql-libs \
-    nodejs \
-    npm
+    postgresql-libs
 
 # Copy requirements first for better caching
 COPY requirements.txt .
@@ -30,19 +26,11 @@ COPY requirements.txt .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy frontend package files
-COPY frontend/package*.json ./frontend/
-WORKDIR /app/frontend
-RUN npm ci --only=production
-
-# Copy all application code
-WORKDIR /app
+# Copy all application code (including pre-built frontend)
 COPY . .
 
-# Build frontend and collect static files
-RUN cd frontend && npm run build && \
-    cd /app && \
-    python manage.py collectstatic --noinput --clear
+# Collect static files (assumes frontend is already built)
+RUN python manage.py collectstatic --noinput --clear
 
 # Clean up build dependencies
 RUN apk del .build-deps

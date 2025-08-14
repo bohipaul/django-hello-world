@@ -50,16 +50,46 @@ curl http://localhost:3000/api/participants/
 ```
 
 #### Resources
-- **CPU**: 1-2 cores recommandés
-- **RAM**: 512MB minimum, 1GB recommandé
-- **Storage**: 2GB minimum
+- **CPU**: 1 core minimum
+- **RAM**: 512MB minimum
+- **Storage**: 1GB minimum
 
-## 🔧 Structure des fichiers
+## 🔧 Workflow de Build
 
-Le Dockerfile optimisé fait automatiquement :
+**Important** : Le frontend N'EST PAS compilé dans Docker. Vous devez le builder localement :
 
-1. **Installation des dépendances** (Python + Node.js)
-2. **Build du frontend** (`npm run build`)
+### Avant chaque déploiement :
+```bash
+# 1. Builder le frontend localement
+python build_frontend.py
+
+# 2. Commiter les fichiers générés
+git add .
+git commit -m "Update frontend build"
+git push
+
+# 3. Coolify déploiera automatiquement
+```
+
+### Structure des fichiers après build :
+```
+static/
+├── assets/
+│   ├── index.ug5QH7_2.css    # CSS compilé
+│   ├── index.CmE-1LrM.js     # JS compilé (avec chatbot)
+│   └── ...
+└── index.html                # Page principale
+
+staticfiles/ (généré par collectstatic)
+├── assets/
+├── admin/
+├── rest_framework/
+└── ...
+```
+
+### Le Dockerfile fait seulement :
+1. **Installation des dépendances Python**
+2. **Copie du code** (avec frontend pré-compilé)
 3. **Collection des fichiers statiques** (`collectstatic`)
 4. **Configuration de sécurité** (utilisateur non-root)
 5. **Health check** intégré
