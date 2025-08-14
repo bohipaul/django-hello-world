@@ -15,7 +15,9 @@ RUN apk add --no-cache --virtual .build-deps \
     musl-dev \
     linux-headers \
     gcc \
-    python3-dev
+    python3-dev \
+    && apk add --no-cache \
+    curl
 
 # Copy requirements first for better caching
 COPY requirements.txt .
@@ -47,7 +49,7 @@ EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:3000/', timeout=10)" || exit 1
+    CMD curl -f http://localhost:3000/ || exit 1
 
 # Start with gunicorn
 CMD ["gunicorn", "--bind", "0.0.0.0:3000", "--workers", "4", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-", "api.wsgi:app"]
