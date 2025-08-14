@@ -81,54 +81,15 @@ WSGI_APPLICATION = 'api.wsgi.app'
 # Note: Django modules for using databases are not support in serverless
 # environments like Vercel. You can use a database over HTTP, hosted elsewhere.
 
-import os
+# SQLite configuration - Simple, reliable, no external dependencies
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
-# Database configuration with smart auto-detection
-# Auto-detect PostgreSQL if DATABASE_URL exists, otherwise use DATABASE_TYPE
-if 'DATABASE_URL' in os.environ:
-    # PostgreSQL detected via DATABASE_URL (Coolify/Heroku style)
-    try:
-        import dj_database_url
-        DATABASES = {
-            'default': dj_database_url.parse(os.environ['DATABASE_URL'])
-        }
-        print(f"📦 Database: PostgreSQL auto-detected via DATABASE_URL")
-    except ImportError:
-        print("Warning: dj_database_url not available, install with: pip install dj-database-url")
-        # Fallback to SQLite
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': BASE_DIR / 'db.sqlite3',
-            }
-        }
-        print(f"📦 Database: SQLite fallback (dj_database_url missing)")
-else:
-    # Manual configuration via DATABASE_TYPE
-    DATABASE_TYPE = os.getenv('DATABASE_TYPE', 'sqlite').lower()
-    
-    if DATABASE_TYPE == 'postgresql':
-        # PostgreSQL with individual environment variables
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.postgresql',
-                'NAME': os.getenv('DB_NAME', 'django_db'),
-                'USER': os.getenv('DB_USER', 'postgres'),
-                'PASSWORD': os.getenv('DB_PASSWORD', ''),
-                'HOST': os.getenv('DB_HOST', 'localhost'),
-                'PORT': os.getenv('DB_PORT', '5432'),
-            }
-        }
-        print(f"📦 Database: PostgreSQL via individual variables")
-    else:
-        # SQLite configuration (default)
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': BASE_DIR / 'db.sqlite3',
-            }
-        }
-        print(f"📦 Database: SQLite (default or DATABASE_TYPE={DATABASE_TYPE})")
+print("📦 Database: SQLite - Simple et fiable pour tous les environnements")
 
 
 # Password validation
