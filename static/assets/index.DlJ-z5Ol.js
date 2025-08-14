@@ -1015,30 +1015,47 @@ class ParticipantChatbot {
       intent = this.detectIntentManually(userMessage);
       console.log("🤖 Intent détecté (manuel):", intent);
     }
-    switch (intent) {
-      case "greeting":
-        return this.getRandomResponse(this.responses.greeting);
-      case "help":
-        return this.responses.help;
-      case "count":
-        return this.getCountResponse();
-      case "stats":
-        return this.getStatsResponse();
-      case "active":
-        return this.getActiveParticipantsResponse();
-      case "company":
-        return this.getCompanySearchResponseNLP(userMessage, entities);
-      case "email":
-        return this.getEmailsResponse();
-      case "recent":
-        return this.getRecentParticipantsResponse();
-      case "search":
-        return this.searchParticipantsNLP(userMessage, entities);
-      default:
-        if (response.score < 0.5) {
-          return this.getDefaultResponse();
-        }
-        return this.getDefaultResponse();
+    console.log("🤖 Traitement de l'intent:", intent);
+    try {
+      let finalResponse;
+      switch (intent) {
+        case "greeting":
+          finalResponse = this.getRandomResponse(this.responses.greeting);
+          break;
+        case "help":
+          finalResponse = this.responses.help;
+          break;
+        case "count":
+          finalResponse = this.getCountResponse();
+          break;
+        case "stats":
+          finalResponse = this.getStatsResponse();
+          break;
+        case "active":
+          finalResponse = this.getActiveParticipantsResponse();
+          break;
+        case "company":
+          finalResponse = this.getCompanySearchResponseNLP(userMessage, entities);
+          break;
+        case "email":
+          finalResponse = this.getEmailsResponse();
+          break;
+        case "recent":
+          finalResponse = this.getRecentParticipantsResponse();
+          break;
+        case "search":
+          finalResponse = this.searchParticipantsNLP(userMessage, entities);
+          break;
+        default:
+          console.log("🤖 Intent non reconnu ou confiance faible:", intent, "Score:", response.score);
+          finalResponse = this.getDefaultResponse();
+          break;
+      }
+      console.log("🤖 Réponse générée:", (finalResponse == null ? void 0 : finalResponse.substring(0, 100)) + "...");
+      return finalResponse;
+    } catch (error) {
+      console.error("🤖 Erreur lors du traitement de l'intent:", error);
+      return "😅 Désolé, j'ai rencontré une erreur. Pouvez-vous réessayer ?";
     }
   }
   detectIntentManually(message) {
@@ -1442,17 +1459,27 @@ Exemple: *"Qui s'appelle Martin ?"*`;
     }, 1e3);
   }
   async sendMessage() {
+    console.log("🤖 sendMessage appelé");
     const input = document.getElementById("chatbot-input");
     const message = input.value.trim();
-    if (!message) return;
+    console.log("🤖 Message utilisateur:", message);
+    if (!message) {
+      console.log("🤖 Message vide, abandon");
+      return;
+    }
     this.addMessage(message, "user");
     input.value = "";
     this.showTyping();
     try {
+      console.log("🤖 Début traitement du message...");
       const response = await this.processMessage(message);
+      console.log("🤖 Réponse reçue, masquage typing...");
       this.hideTyping();
+      console.log("🤖 Ajout de la réponse:", (response == null ? void 0 : response.substring(0, 50)) + "...");
       this.addMessage(response, "bot");
+      console.log("🤖 Traitement terminé avec succès");
     } catch (error) {
+      console.error("🤖 Erreur dans sendMessage:", error);
       this.hideTyping();
       this.addMessage("😅 Désolé, j'ai rencontré une erreur. Pouvez-vous réessayer ?", "bot");
     }
