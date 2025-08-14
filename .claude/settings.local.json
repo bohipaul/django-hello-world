@@ -9,7 +9,8 @@
       "Bash(start:*)",
       "Bash(pip install:*)",
       "Bash(timeout:*)",
-      "Bash(python manage.py collectstatic:*)"
+      "Bash(python manage.py collectstatic:*)",
+      "Bash(python:*)"
     ],
     "deny": [],
     "ask": []
