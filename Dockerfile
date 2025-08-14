@@ -49,7 +49,13 @@ EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:3000/api/participants/', timeout=10)"
+    CMD python -c "import urllib.request; import sys; \
+try: \
+    urllib.request.urlopen('http://localhost:3000/api/participants/', timeout=10); \
+    print('Health check OK'); \
+except Exception as e: \
+    print(f'Health check failed: {e}'); \
+    sys.exit(1)"
 
 # Start with gunicorn
 CMD ["gunicorn", "--bind", "0.0.0.0:3000", "--workers", "4", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-", "api.wsgi:app"]
