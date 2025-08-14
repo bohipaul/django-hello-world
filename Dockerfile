@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.11-alpine
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -11,24 +11,16 @@ WORKDIR /app
 
 # Install system dependencies
 RUN apk add --no-cache --virtual .build-deps \
-    build-base \
-    musl-dev \
-    linux-headers \
     gcc \
-    python3-dev
+    musl-dev \
+    && apk add --no-cache \
+    sqlite
 
 # Copy requirements first for better caching
 COPY requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy all application code (including pre-built frontend)
-COPY . .
-
-# Run database migrations and collect static files
-RUN python manage.py migrate --noinput
-RUN python manage.py collectstatic --noinput --clear
 
 # Clean up build dependencies
 RUN apk del .build-deps
@@ -37,11 +29,13 @@ RUN apk del .build-deps
 RUN addgroup -g 1001 -S django && \
     adduser -S django -u 1001 -G django
 
-# Change ownership of the app directory
-RUN chown -R django:django /app
+# Copy all application code
+COPY --chown=django:django . .
 
-# Switch to non-root user
+# Run database migrations and collect static files as django user
 USER django
+RUN python manage.py migrate --noinput
+RUN python manage.py collectstatic --noinput --clear
 
 EXPOSE 3000
 
