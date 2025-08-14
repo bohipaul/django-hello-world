@@ -1,23 +1,27 @@
 {
   "name": "frontend",
-  "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "main": "postcss.config.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "build:django": "vite build && echo Build completed - Frontend ready for Django integration"
+    "serve": "vite preview",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.11",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@nlpjs/core": "^5.0.0-alpha.5",
+    "@nlpjs/lang-fr": "^5.0.0-alpha.5",
+    "@nlpjs/nlp": "^5.0.0-alpha.5",
+    "@tailwindcss/postcss": "^4.1.12",
+    "@vitejs/plugin-react": "^4.7.0",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.11",
-    "vite": "^7.0.4"
-  },
-  "dependencies": {
-    "@heroicons/react": "^2.2.0",
-    "framer-motion": "^12.23.12"
+    "tailwindcss": "^4.1.12",
+    "vite": "^6.3.5"
   }
 }

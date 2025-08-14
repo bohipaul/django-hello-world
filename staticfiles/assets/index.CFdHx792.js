@@ -1,27 +1,36 @@
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/index.CySMn7W7.js","assets/index.GUmXO0j9.js","assets/index.B2x03apL.js"])))=>i.map(i=>d[i]);
 (function polyfill() {
   const relList = document.createElement("link").relList;
-  if (relList && relList.supports && relList.supports("modulepreload")) return;
-  for (const link of document.querySelectorAll('link[rel="modulepreload"]')) processPreload(link);
+  if (relList && relList.supports && relList.supports("modulepreload")) {
+    return;
+  }
+  for (const link of document.querySelectorAll('link[rel="modulepreload"]')) {
+    processPreload(link);
+  }
   new MutationObserver((mutations) => {
     for (const mutation of mutations) {
-      if (mutation.type !== "childList") continue;
-      for (const node of mutation.addedNodes) if (node.tagName === "LINK" && node.rel === "modulepreload") processPreload(node);
+      if (mutation.type !== "childList") {
+        continue;
+      }
+      for (const node of mutation.addedNodes) {
+        if (node.tagName === "LINK" && node.rel === "modulepreload")
+          processPreload(node);
+      }
     }
-  }).observe(document, {
-    childList: true,
-    subtree: true
-  });
+  }).observe(document, { childList: true, subtree: true });
   function getFetchOpts(link) {
     const fetchOpts = {};
     if (link.integrity) fetchOpts.integrity = link.integrity;
     if (link.referrerPolicy) fetchOpts.referrerPolicy = link.referrerPolicy;
-    if (link.crossOrigin === "use-credentials") fetchOpts.credentials = "include";
+    if (link.crossOrigin === "use-credentials")
+      fetchOpts.credentials = "include";
     else if (link.crossOrigin === "anonymous") fetchOpts.credentials = "omit";
     else fetchOpts.credentials = "same-origin";
     return fetchOpts;
   }
   function processPreload(link) {
-    if (link.ep) return;
+    if (link.ep)
+      return;
     link.ep = true;
     const fetchOpts = getFetchOpts(link);
     fetch(link.href, fetchOpts);
@@ -693,6 +702,80 @@ class ParticipantForm {
     }, 3e3);
   }
 }
+const scriptRel = "modulepreload";
+const assetsURL = function(dep) {
+  return "/static/" + dep;
+};
+const seen = {};
+const __vitePreload = function preload(baseModule, deps, importerUrl) {
+  let promise = Promise.resolve();
+  if (deps && deps.length > 0) {
+    let allSettled2 = function(promises) {
+      return Promise.all(
+        promises.map(
+          (p) => Promise.resolve(p).then(
+            (value) => ({ status: "fulfilled", value }),
+            (reason) => ({ status: "rejected", reason })
+          )
+        )
+      );
+    };
+    document.getElementsByTagName("link");
+    const cspNonceMeta = document.querySelector(
+      "meta[property=csp-nonce]"
+    );
+    const cspNonce = (cspNonceMeta == null ? void 0 : cspNonceMeta.nonce) || (cspNonceMeta == null ? void 0 : cspNonceMeta.getAttribute("nonce"));
+    promise = allSettled2(
+      deps.map((dep) => {
+        dep = assetsURL(dep);
+        if (dep in seen) return;
+        seen[dep] = true;
+        const isCss = dep.endsWith(".css");
+        const cssSelector = isCss ? '[rel="stylesheet"]' : "";
+        if (document.querySelector(`link[href="${dep}"]${cssSelector}`)) {
+          return;
+        }
+        const link = document.createElement("link");
+        link.rel = isCss ? "stylesheet" : scriptRel;
+        if (!isCss) {
+          link.as = "script";
+        }
+        link.crossOrigin = "";
+        link.href = dep;
+        if (cspNonce) {
+          link.setAttribute("nonce", cspNonce);
+        }
+        document.head.appendChild(link);
+        if (isCss) {
+          return new Promise((res, rej) => {
+            link.addEventListener("load", res);
+            link.addEventListener(
+              "error",
+              () => rej(new Error(`Unable to preload CSS for ${dep}`))
+            );
+          });
+        }
+      })
+    );
+  }
+  function handlePreloadError(err) {
+    const e = new Event("vite:preloadError", {
+      cancelable: true
+    });
+    e.payload = err;
+    window.dispatchEvent(e);
+    if (!e.defaultPrevented) {
+      throw err;
+    }
+  }
+  return promise.then((res) => {
+    for (const item of res || []) {
+      if (item.status !== "rejected") continue;
+      handlePreloadError(item.reason);
+    }
+    return baseModule().catch(handlePreloadError);
+  });
+};
 class ParticipantChatbot {
   constructor(container) {
     this.container = container;
@@ -700,18 +783,9 @@ class ParticipantChatbot {
     this.participants = [];
     this.isTyping = false;
     this.isMinimized = false;
-    this.patterns = {
-      greeting: /^(salut|hello|hi|bonjour|bonsoir)/i,
-      count: /(combien|nombre).*participants?/i,
-      search: /(qui|quel|trouve|cherche|liste).*(?:participants?|personne)/i,
-      active: /(actifs?|activés?)/i,
-      company: /(entreprises?|sociétés?|compagnies?)/i,
-      email: /(emails?|mails?|adresses?)/i,
-      phone: /(téléphones?|numéros?)/i,
-      help: /(aide|help|commandes?)/i,
-      stats: /(statistiques?|stats|résumé)/i,
-      recent: /(récents?|derniers?|nouveaux)/i
-    };
+    this.nlpManager = null;
+    this.isNlpTrained = false;
+    this.initializeNLP();
     this.responses = {
       greeting: [
         "👋 Salut ! Je suis votre assistant pour les participants. Comment puis-je vous aider ?",
@@ -730,6 +804,237 @@ class ParticipantChatbot {
 💡 *Tapez simplement votre question en langage naturel !*`
     };
   }
+  async initializeNLP() {
+    try {
+      const { Nlp } = await __vitePreload(async () => {
+        const { Nlp: Nlp2 } = await import("./index.CySMn7W7.js").then((n) => n.i);
+        return { Nlp: Nlp2 };
+      }, true ? __vite__mapDeps([0,1]) : void 0);
+      const { LangFr } = await __vitePreload(async () => {
+        const { LangFr: LangFr2 } = await import("./index.B2x03apL.js").then((n) => n.i);
+        return { LangFr: LangFr2 };
+      }, true ? __vite__mapDeps([2,1]) : void 0);
+      this.nlpManager = new Nlp({ languages: ["fr"], forceNER: true });
+      this.nlpManager.use(LangFr);
+      console.log("🤖 NLP.js chargé avec succès dans le navigateur");
+    } catch (error) {
+      console.warn("🤖 NLP.js non disponible, fallback vers patterns manuels:", error);
+      this.nlpManager = null;
+      this.isNlpTrained = true;
+      return;
+    }
+    this.nlpManager.addDocument("fr", "salut", "greeting");
+    this.nlpManager.addDocument("fr", "hello", "greeting");
+    this.nlpManager.addDocument("fr", "hi", "greeting");
+    this.nlpManager.addDocument("fr", "bonjour", "greeting");
+    this.nlpManager.addDocument("fr", "bonsoir", "greeting");
+    this.nlpManager.addDocument("fr", "salut tout le monde", "greeting");
+    this.nlpManager.addDocument("fr", "coucou", "greeting");
+    this.nlpManager.addDocument("fr", "yo", "greeting");
+    this.nlpManager.addDocument("fr", "hey", "greeting");
+    this.nlpManager.addDocument("fr", "bonne journée", "greeting");
+    this.nlpManager.addDocument("fr", "bonne soirée", "greeting");
+    this.nlpManager.addDocument("fr", "comment allez vous", "greeting");
+    this.nlpManager.addDocument("fr", "comment ça va", "greeting");
+    this.nlpManager.addDocument("fr", "salut assistant", "greeting");
+    this.nlpManager.addDocument("fr", "bonjour chatbot", "greeting");
+    this.nlpManager.addDocument("fr", "aide", "help");
+    this.nlpManager.addDocument("fr", "help", "help");
+    this.nlpManager.addDocument("fr", "commandes", "help");
+    this.nlpManager.addDocument("fr", "que peux tu faire", "help");
+    this.nlpManager.addDocument("fr", "comment ça marche", "help");
+    this.nlpManager.addDocument("fr", "à quoi tu sers", "help");
+    this.nlpManager.addDocument("fr", "quelles sont tes fonctions", "help");
+    this.nlpManager.addDocument("fr", "que sais tu faire", "help");
+    this.nlpManager.addDocument("fr", "montre moi les commandes", "help");
+    this.nlpManager.addDocument("fr", "liste des fonctionnalités", "help");
+    this.nlpManager.addDocument("fr", "mode emploi", "help");
+    this.nlpManager.addDocument("fr", "instruction", "help");
+    this.nlpManager.addDocument("fr", "guide utilisation", "help");
+    this.nlpManager.addDocument("fr", "comment je peux te parler", "help");
+    this.nlpManager.addDocument("fr", "comment utiliser", "help");
+    this.nlpManager.addDocument("fr", "combien de participants", "count");
+    this.nlpManager.addDocument("fr", "nombre de participants", "count");
+    this.nlpManager.addDocument("fr", "total participants", "count");
+    this.nlpManager.addDocument("fr", "combien il y a de participants", "count");
+    this.nlpManager.addDocument("fr", "quel est le nombre de participants", "count");
+    this.nlpManager.addDocument("fr", "combien sont ils", "count");
+    this.nlpManager.addDocument("fr", "combien de personnes", "count");
+    this.nlpManager.addDocument("fr", "nombre total", "count");
+    this.nlpManager.addDocument("fr", "effectif total", "count");
+    this.nlpManager.addDocument("fr", "quantité participants", "count");
+    this.nlpManager.addDocument("fr", "combien avez vous de participants", "count");
+    this.nlpManager.addDocument("fr", "combien y a t il de membres", "count");
+    this.nlpManager.addDocument("fr", "nombre de membres", "count");
+    this.nlpManager.addDocument("fr", "compte participants", "count");
+    this.nlpManager.addDocument("fr", "décompte", "count");
+    this.nlpManager.addDocument("fr", "statistiques", "stats");
+    this.nlpManager.addDocument("fr", "stats", "stats");
+    this.nlpManager.addDocument("fr", "résumé", "stats");
+    this.nlpManager.addDocument("fr", "bilan", "stats");
+    this.nlpManager.addDocument("fr", "aperçu général", "stats");
+    this.nlpManager.addDocument("fr", "rapport complet", "stats");
+    this.nlpManager.addDocument("fr", "vue d ensemble", "stats");
+    this.nlpManager.addDocument("fr", "synthèse", "stats");
+    this.nlpManager.addDocument("fr", "données complètes", "stats");
+    this.nlpManager.addDocument("fr", "informations détaillées", "stats");
+    this.nlpManager.addDocument("fr", "tableau de bord", "stats");
+    this.nlpManager.addDocument("fr", "dashboard", "stats");
+    this.nlpManager.addDocument("fr", "analyse", "stats");
+    this.nlpManager.addDocument("fr", "métriques", "stats");
+    this.nlpManager.addDocument("fr", "indicateurs", "stats");
+    this.nlpManager.addDocument("fr", "participants actifs", "active");
+    this.nlpManager.addDocument("fr", "liste des actifs", "active");
+    this.nlpManager.addDocument("fr", "qui est actif", "active");
+    this.nlpManager.addDocument("fr", "participants activés", "active");
+    this.nlpManager.addDocument("fr", "membres actifs", "active");
+    this.nlpManager.addDocument("fr", "personnes actives", "active");
+    this.nlpManager.addDocument("fr", "utilisateurs actifs", "active");
+    this.nlpManager.addDocument("fr", "comptes activés", "active");
+    this.nlpManager.addDocument("fr", "profils actifs", "active");
+    this.nlpManager.addDocument("fr", "participants en activité", "active");
+    this.nlpManager.addDocument("fr", "membres en ligne", "active");
+    this.nlpManager.addDocument("fr", "qui participe activement", "active");
+    this.nlpManager.addDocument("fr", "liste participants opérationnels", "active");
+    this.nlpManager.addDocument("fr", "montre moi les actifs", "active");
+    this.nlpManager.addDocument("fr", "affiche les membres actifs", "active");
+    this.nlpManager.addDocument("fr", "qui travaille chez %company%", "company");
+    this.nlpManager.addDocument("fr", "participants de %company%", "company");
+    this.nlpManager.addDocument("fr", "employés de %company%", "company");
+    this.nlpManager.addDocument("fr", "membres de %company%", "company");
+    this.nlpManager.addDocument("fr", "personnes chez %company%", "company");
+    this.nlpManager.addDocument("fr", "équipe de %company%", "company");
+    this.nlpManager.addDocument("fr", "collaborateurs de %company%", "company");
+    this.nlpManager.addDocument("fr", "salariés de %company%", "company");
+    this.nlpManager.addDocument("fr", "staff de %company%", "company");
+    this.nlpManager.addDocument("fr", "personnel de %company%", "company");
+    this.nlpManager.addDocument("fr", "liste %company%", "company");
+    this.nlpManager.addDocument("fr", "cherche %company%", "company");
+    this.nlpManager.addDocument("fr", "trouve %company%", "company");
+    this.nlpManager.addDocument("fr", "montre %company%", "company");
+    this.nlpManager.addDocument("fr", "affiche %company%", "company");
+    this.nlpManager.addDocument("fr", "participants entreprise %company%", "company");
+    this.nlpManager.addDocument("fr", "qui est dans %company%", "company");
+    this.nlpManager.addDocument("fr", "personnes de la société %company%", "company");
+    this.nlpManager.addDocument("fr", "liste des emails", "email");
+    this.nlpManager.addDocument("fr", "adresses emails", "email");
+    this.nlpManager.addDocument("fr", "tous les emails", "email");
+    this.nlpManager.addDocument("fr", "export emails", "email");
+    this.nlpManager.addDocument("fr", "emails des participants", "email");
+    this.nlpManager.addDocument("fr", "adresses mail", "email");
+    this.nlpManager.addDocument("fr", "courriels", "email");
+    this.nlpManager.addDocument("fr", "contacts email", "email");
+    this.nlpManager.addDocument("fr", "listes de diffusion", "email");
+    this.nlpManager.addDocument("fr", "carnet adresses", "email");
+    this.nlpManager.addDocument("fr", "répertoire email", "email");
+    this.nlpManager.addDocument("fr", "annuaire mail", "email");
+    this.nlpManager.addDocument("fr", "exporter adresses", "email");
+    this.nlpManager.addDocument("fr", "télécharger emails", "email");
+    this.nlpManager.addDocument("fr", "récupérer emails", "email");
+    this.nlpManager.addDocument("fr", "participants récents", "recent");
+    this.nlpManager.addDocument("fr", "derniers participants", "recent");
+    this.nlpManager.addDocument("fr", "nouveaux participants", "recent");
+    this.nlpManager.addDocument("fr", "inscriptions récentes", "recent");
+    this.nlpManager.addDocument("fr", "dernières inscriptions", "recent");
+    this.nlpManager.addDocument("fr", "nouveaux arrivants", "recent");
+    this.nlpManager.addDocument("fr", "derniers inscrits", "recent");
+    this.nlpManager.addDocument("fr", "nouveaux membres", "recent");
+    this.nlpManager.addDocument("fr", "récentes adhésions", "recent");
+    this.nlpManager.addDocument("fr", "dernières arrivées", "recent");
+    this.nlpManager.addDocument("fr", "nouveautés", "recent");
+    this.nlpManager.addDocument("fr", "qui vient de s inscrire", "recent");
+    this.nlpManager.addDocument("fr", "participants du jour", "recent");
+    this.nlpManager.addDocument("fr", "inscriptions du jour", "recent");
+    this.nlpManager.addDocument("fr", "ajouts récents", "recent");
+    this.nlpManager.addDocument("fr", "cherche %name%", "search");
+    this.nlpManager.addDocument("fr", "trouve %name%", "search");
+    this.nlpManager.addDocument("fr", "qui est %name%", "search");
+    this.nlpManager.addDocument("fr", "recherche %name%", "search");
+    this.nlpManager.addDocument("fr", "localise %name%", "search");
+    this.nlpManager.addDocument("fr", "où est %name%", "search");
+    this.nlpManager.addDocument("fr", "montre moi %name%", "search");
+    this.nlpManager.addDocument("fr", "affiche %name%", "search");
+    this.nlpManager.addDocument("fr", "infos sur %name%", "search");
+    this.nlpManager.addDocument("fr", "informations %name%", "search");
+    this.nlpManager.addDocument("fr", "détails %name%", "search");
+    this.nlpManager.addDocument("fr", "profil de %name%", "search");
+    this.nlpManager.addDocument("fr", "fiche %name%", "search");
+    this.nlpManager.addDocument("fr", "contact %name%", "search");
+    this.nlpManager.addDocument("fr", "je cherche %name%", "search");
+    this.nlpManager.addDocument("fr", "peux tu trouver %name%", "search");
+    this.nlpManager.addNamedEntityText("company", "company", ["fr"], [
+      "entreprise",
+      "société",
+      "compagnie",
+      "boite",
+      "firme",
+      "corporation",
+      "groupe",
+      "organisation",
+      "établissement",
+      "maison",
+      "cabinet",
+      "agence",
+      "bureau",
+      "studio",
+      "atelier",
+      "lab",
+      "laboratoire",
+      "startup",
+      "scale-up",
+      "PME",
+      "TPE",
+      "SARL",
+      "SA",
+      "SAS"
+    ]);
+    this.nlpManager.addNamedEntityText("name", "name", ["fr"], [
+      "nom",
+      "personne",
+      "participant",
+      "membre",
+      "utilisateur",
+      "client",
+      "contact",
+      "profil",
+      "compte",
+      "individu",
+      "collaborateur",
+      "employé",
+      "salarié",
+      "stagiaire",
+      "consultant",
+      "freelance"
+    ]);
+    this.nlpManager.addNamedEntityText("action", "action", ["fr"], [
+      "liste",
+      "affiche",
+      "montre",
+      "trouve",
+      "cherche",
+      "localise",
+      "export",
+      "télécharge",
+      "récupère",
+      "extrait",
+      "génère"
+    ]);
+    this.nlpManager.addNamedEntityText("status", "status", ["fr"], [
+      "actif",
+      "inactif",
+      "activé",
+      "désactivé",
+      "en ligne",
+      "hors ligne",
+      "opérationnel",
+      "suspendu",
+      "validé",
+      "en attente"
+    ]);
+    await this.nlpManager.train();
+    this.isNlpTrained = true;
+    console.log("🤖 Modèle NLP entraîné avec succès");
+  }
   async loadParticipants() {
     try {
       const response = await apiClient.getParticipants();
@@ -741,35 +1046,72 @@ class ParticipantChatbot {
   }
   async processMessage(userMessage) {
     await this.loadParticipants();
-    const message = userMessage.toLowerCase().trim();
-    if (this.patterns.greeting.test(message)) {
-      return this.getRandomResponse(this.responses.greeting);
+    if (!this.isNlpTrained) {
+      await new Promise((resolve) => {
+        const checkInterval = setInterval(() => {
+          if (this.isNlpTrained) {
+            clearInterval(checkInterval);
+            resolve();
+          }
+        }, 100);
+      });
     }
-    if (this.patterns.help.test(message)) {
-      return this.responses.help;
+    let intent, entities = [], response = { score: 0 };
+    if (this.nlpManager) {
+      response = await this.nlpManager.process("fr", userMessage);
+      intent = response.intent;
+      entities = response.entities;
+      console.log("🤖 Intent détecté:", intent, "Confiance:", response.score);
+      console.log("🤖 Entités:", entities);
+    } else {
+      intent = this.detectIntentManually(userMessage);
+      console.log("🤖 Intent détecté (manuel):", intent);
     }
-    if (this.patterns.count.test(message) && !this.patterns.company.test(message)) {
-      return this.getCountResponse();
+    switch (intent) {
+      case "greeting":
+        return this.getRandomResponse(this.responses.greeting);
+      case "help":
+        return this.responses.help;
+      case "count":
+        return this.getCountResponse();
+      case "stats":
+        return this.getStatsResponse();
+      case "active":
+        return this.getActiveParticipantsResponse();
+      case "company":
+        return this.getCompanySearchResponseNLP(userMessage, entities);
+      case "email":
+        return this.getEmailsResponse();
+      case "recent":
+        return this.getRecentParticipantsResponse();
+      case "search":
+        return this.searchParticipantsNLP(userMessage, entities);
+      default:
+        if (response.score < 0.5) {
+          return this.getDefaultResponse();
+        }
+        return this.getDefaultResponse();
     }
-    if (this.patterns.stats.test(message)) {
-      return this.getStatsResponse();
+  }
+  detectIntentManually(message) {
+    const msg = message.toLowerCase().trim();
+    const patterns = {
+      greeting: /^(salut|hello|hi|bonjour|bonsoir)/i,
+      help: /(aide|help|commandes?)/i,
+      count: /(combien|nombre).*participants?/i,
+      stats: /(statistiques?|stats|résumé)/i,
+      active: /(actifs?|activés?)/i,
+      company: /(entreprises?|sociétés?|compagnies?|chez)/i,
+      email: /(emails?|mails?|adresses?)/i,
+      recent: /(récents?|derniers?|nouveaux)/i,
+      search: /(qui|quel|trouve|cherche|liste).*(?:participants?|personne)/i
+    };
+    for (const [intent, pattern] of Object.entries(patterns)) {
+      if (pattern.test(msg)) {
+        return intent;
+      }
     }
-    if (this.patterns.active.test(message)) {
-      return this.getActiveParticipantsResponse();
-    }
-    if (this.patterns.company.test(message) || message.includes("chez ")) {
-      return this.getCompanySearchResponse(message);
-    }
-    if (this.patterns.email.test(message)) {
-      return this.getEmailsResponse();
-    }
-    if (this.patterns.recent.test(message)) {
-      return this.getRecentParticipantsResponse();
-    }
-    if (this.patterns.search.test(message)) {
-      return this.searchParticipants(message);
-    }
-    return this.getDefaultResponse();
+    return "None";
   }
   getRandomResponse(responses) {
     return responses[Math.floor(Math.random() * responses.length)];
@@ -823,12 +1165,18 @@ ${this.getTopCompanies()}`;
     }
     return response;
   }
-  getCompanySearchResponse(message) {
-    const companyMatch = message.match(/(?:chez|entreprise|société)\s+([a-zA-Z0-9\s]+)/i);
-    let companyName = companyMatch ? companyMatch[1].trim() : "";
-    if (!companyName) {
-      const chezMatch = message.match(/chez\s+(.+)/i);
-      companyName = chezMatch ? chezMatch[1].trim() : "";
+  getCompanySearchResponseNLP(message, entities) {
+    let companyName = "";
+    const companyEntity = entities.find((e) => e.entity === "company");
+    if (companyEntity) {
+      companyName = companyEntity.sourceText || companyEntity.utteranceText;
+    } else {
+      const companyMatch = message.match(/(?:chez|entreprise|société)\s+([a-zA-Z0-9\s]+)/i);
+      companyName = companyMatch ? companyMatch[1].trim() : "";
+      if (!companyName) {
+        const chezMatch = message.match(/chez\s+(.+)/i);
+        companyName = chezMatch ? chezMatch[1].trim() : "";
+      }
     }
     if (!companyName) {
       return `🤔 Pouvez-vous préciser le nom de l'entreprise ? 
@@ -851,6 +1199,9 @@ ${this.getAvailableCompanies()}`;
 `;
     });
     return response;
+  }
+  getCompanySearchResponse(message) {
+    return this.getCompanySearchResponseNLP(message, []);
   }
   getEmailsResponse() {
     if (this.participants.length === 0) {
@@ -887,8 +1238,14 @@ ${this.getAvailableCompanies()}`;
     });
     return response;
   }
-  searchParticipants(message) {
-    const searchTerms = message.replace(/(qui|quel|trouve|cherche|liste|participants?|personne)/gi, "").trim();
+  searchParticipantsNLP(message, entities) {
+    let searchTerms = "";
+    const nameEntity = entities.find((e) => e.entity === "name");
+    if (nameEntity) {
+      searchTerms = nameEntity.sourceText || nameEntity.utteranceText;
+    } else {
+      searchTerms = message.replace(/(qui|quel|trouve|cherche|liste|participants?|personne)/gi, "").trim();
+    }
     if (searchTerms.length < 2) {
       return `🔍 Pouvez-vous préciser votre recherche ?
 Exemple: *"Qui s'appelle Martin ?"*`;
@@ -914,6 +1271,9 @@ Exemple: *"Qui s'appelle Martin ?"*`;
       response += `*... et ${results.length - 8} autres résultats*`;
     }
     return response;
+  }
+  searchParticipants(message) {
+    return this.searchParticipantsNLP(message, []);
   }
   getDefaultResponse() {
     const suggestions = [

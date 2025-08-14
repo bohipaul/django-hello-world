@@ -12,7 +12,11 @@
       "Bash(python manage.py collectstatic:*)",
       "Bash(python:*)",
       "Bash(touch:*)",
-      "Bash(docker build:*)"
+      "Bash(docker build:*)",
+      "Bash(npm run dev:*)",
+      "Bash(mv:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": []
