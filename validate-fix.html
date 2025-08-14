@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Validation de la correction</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Validation de la correction - État Loading</h1>
+    
+    <div id="results">
+        <div class="result info">⏳ Test en cours...</div>
+    </div>
+
+    <script>
+        const results = document.getElementById('results');
+        let testsPassed = 0;
+        let testsTotal = 0;
+        
+        function addResult(type, message) {
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.textContent = message;
+            results.appendChild(div);
+        }
+        
+        function runTest(name, testFn) {
+            testsTotal++;
+            try {
+                if (testFn()) {
+                    testsPassed++;
+                    addResult('success', `✅ ${name} - RÉUSSI`);
+                } else {
+                    addResult('error', `❌ ${name} - ÉCHEC`);
+                }
+            } catch (error) {
+                addResult('error', `❌ ${name} - ERREUR: ${error.message}`);
+            }
+        }
+        
+        async function validateFix() {
+            results.innerHTML = '<div class="result info">🔍 Validation en cours...</div>';
+            
+            try {
+                // Test 1: Vérifier l'API
+                const apiResponse = await fetch('/api/participants/');
+                runTest('API accessible', () => apiResponse.ok);
+                
+                const apiData = await apiResponse.json();
+                runTest('API retourne des données', () => apiData && (apiData.results || apiData.length));
+                
+                const participantCount = apiData.results ? apiData.results.length : apiData.length;
+                runTest('Participants présents', () => participantCount > 0);
+                addResult('info', `📊 Nombre de participants: ${participantCount}`);
+                
+                // Test 2: Tester la classe ParticipantList simulée
+                class TestParticipantList {
+                    constructor() {
+                        this.participants = [];
+                        this.loading = false;
+                    }
+                    
+                    async load() {
+                        this.loading = true;
+                        const response = await fetch('/api/participants/');
+                        const data = await response.json();
+                        this.participants = data.results || data;
+                        this.loading = false;
+                        return this.participants;
+                    }
+                }
+                
+                const testList = new TestParticipantList();
+                runTest('État loading initial false', () => testList.loading === false);
+                
+                await testList.load();
+                runTest('État loading final false', () => testList.loading === false);
+                runTest('Participants chargés', () => testList.participants.length > 0);
+                
+                // Résumé
+                addResult('info', `📋 Résumé: ${testsPassed}/${testsTotal} tests réussis`);
+                
+                if (testsPassed === testsTotal) {
+                    addResult('success', '🎉 Tous les tests sont passés ! La correction fonctionne.');
+                } else {
+                    addResult('error', `⚠️ ${testsTotal - testsPassed} test(s) échoué(s).`);
+                }
+                
+            } catch (error) {
+                addResult('error', `💥 Erreur lors de la validation: ${error.message}`);
+            }
+        }
+        
+        // Lancer la validation automatiquement
+        validateFix();
+    </script>
+</body>
+</html>

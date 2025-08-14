@@ -9,6 +9,8 @@ export default defineConfig({
     emptyOutDir: false, // Ne pas vider car Django a d'autres fichiers statiques
     // Configuration des assets
     assetsDir: 'assets',
+    // Debug: désactiver la minification temporairement
+    minify: false,
     // Générer les fichiers avec des noms hachés pour le cache busting
     rollupOptions: {
       output: {

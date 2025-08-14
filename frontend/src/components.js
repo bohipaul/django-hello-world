@@ -19,90 +19,85 @@ export class ParticipantList {
       this.participants = response.results || response;
       console.log('👥 Participants traités:', this.participants);
       console.log('🔢 Nombre de participants:', this.participants.length);
-      this.render();
     } catch (error) {
       console.error('❌ Erreur lors du chargement des participants:', error);
       this.renderError(error.message);
+      return; // Sortir ici en cas d'erreur
     } finally {
       this.loading = false;
+      console.log('🏁 Chargement terminé, rendu final...');
+      this.render(); // Toujours faire le rendu final
     }
   }
 
   render() {
+    console.log('🎨 Rendu de la liste, état:', { loading: this.loading, count: this.participants.length });
+    
     if (this.loading) {
       this.container.innerHTML = `
-        <div class="card loading">
-          <div class="animate-pulse">
-            <div class="h-6 bg-gray-200 rounded mb-4"></div>
-            <div class="space-y-3">
-              <div class="h-4 bg-gray-200 rounded"></div>
-              <div class="h-4 bg-gray-200 rounded w-3/4"></div>
-              <div class="h-4 bg-gray-200 rounded w-1/2"></div>
-            </div>
+        <div class="card">
+          <div style="padding: 20px; text-align: center;">
+            <div style="animation: pulse 2s infinite;">⏳ Chargement des participants...</div>
           </div>
         </div>
       `;
       return;
     }
 
+    console.log('📋 Rendu de', this.participants.length, 'participants');
+
     this.container.innerHTML = `
       <div class="card">
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-2xl font-bold text-gray-900">Liste des Participants</h2>
-          <span class="bg-primary-100 text-primary-800 px-3 py-1 rounded-full text-sm font-medium">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+          <h2 style="font-size: 1.5rem; font-weight: bold; color: #111827; margin: 0;">Liste des Participants</h2>
+          <span style="background-color: #dbeafe; color: #1e40af; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500;">
             ${this.participants.length} participant(s)
           </span>
         </div>
         
         ${this.participants.length === 0 ? `
-          <div class="text-center py-8">
-            <div class="text-gray-400 mb-4">
-              <svg class="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.196-2.032M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.849M7 20H2v-2a3 3 0 015.196-2.032M7 20v-2c0-.656.126-1.283.356-1.849m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-            </div>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">Aucun participant</h3>
-            <p class="text-gray-500">Commencez par ajouter votre premier participant.</p>
+          <div style="text-align: center; padding: 2rem;">
+            <div style="color: #9ca3af; margin-bottom: 1rem; font-size: 3rem;">👥</div>
+            <h3 style="font-size: 1.125rem; font-weight: 500; color: #111827; margin-bottom: 0.5rem;">Aucun participant</h3>
+            <p style="color: #6b7280;">Commencez par ajouter votre premier participant.</p>
           </div>
         ` : `
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Participant</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Entreprise</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="background-color: #f9fafb;">
+                  <th style="padding: 0.75rem 1.5rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #e5e7eb;">Participant</th>
+                  <th style="padding: 0.75rem 1.5rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #e5e7eb;">Email</th>
+                  <th style="padding: 0.75rem 1.5rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #e5e7eb;">Entreprise</th>
+                  <th style="padding: 0.75rem 1.5rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #e5e7eb;">Statut</th>
+                  <th style="padding: 0.75rem 1.5rem; text-align: left; font-size: 0.75rem; font-weight: 500; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #e5e7eb;">Actions</th>
                 </tr>
               </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                ${this.participants.map(participant => `
-                  <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <div class="flex items-center">
-                        <div class="flex-shrink-0 h-10 w-10">
-                          <div class="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
-                            <span class="text-primary-600 font-medium text-sm">
-                              ${participant.prenom.charAt(0)}${participant.nom.charAt(0)}
-                            </span>
-                          </div>
+              <tbody style="background-color: white;">
+                ${this.participants.map((participant, index) => `
+                  <tr style="border-bottom: 1px solid #e5e7eb;" onmouseover="this.style.backgroundColor='#f9fafb'" onmouseout="this.style.backgroundColor='white'">
+                    <td style="padding: 1rem 1.5rem; white-space: nowrap;">
+                      <div style="display: flex; align-items: center;">
+                        <div style="width: 2.5rem; height: 2.5rem; border-radius: 50%; background-color: #dbeafe; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                          <span style="color: #2563eb; font-weight: 500; font-size: 0.875rem;">
+                            ${participant.prenom.charAt(0)}${participant.nom.charAt(0)}
+                          </span>
                         </div>
-                        <div class="ml-4">
-                          <div class="text-sm font-medium text-gray-900">${participant.nom_complet}</div>
-                          <div class="text-sm text-gray-500">${participant.poste || 'Non spécifié'}</div>
+                        <div>
+                          <div style="font-size: 0.875rem; font-weight: 500; color: #111827;">${participant.nom_complet || `${participant.prenom} ${participant.nom}`}</div>
+                          <div style="font-size: 0.875rem; color: #6b7280;">${participant.poste || 'Non spécifié'}</div>
                         </div>
                       </div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${participant.email}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${participant.entreprise || 'Non spécifiée'}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${participant.actif ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                        ${participant.actif ? 'Actif' : 'Inactif'}
+                    <td style="padding: 1rem 1.5rem; white-space: nowrap; font-size: 0.875rem; color: #111827;">${participant.email}</td>
+                    <td style="padding: 1rem 1.5rem; white-space: nowrap; font-size: 0.875rem; color: #6b7280;">${participant.entreprise || 'Non spécifiée'}</td>
+                    <td style="padding: 1rem 1.5rem; white-space: nowrap;">
+                      <span style="display: inline-flex; padding: 0.25rem 0.5rem; font-size: 0.75rem; font-weight: 600; border-radius: 9999px; ${participant.actif ? 'background-color: #dcfce7; color: #166534;' : 'background-color: #fee2e2; color: #991b1b;'}">
+                        ${participant.actif ? '✅ Actif' : '❌ Inactif'}
                       </span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button onclick="deleteParticipant(${participant.id})" class="text-red-600 hover:text-red-900">
+                    <td style="padding: 1rem 1.5rem; white-space: nowrap; font-size: 0.875rem; font-weight: 500;">
+                      <button onclick="deleteParticipant(${participant.id})" style="color: #dc2626; background: none; border: none; cursor: pointer; text-decoration: underline;" onmouseover="this.style.color='#7f1d1d'" onmouseout="this.style.color='#dc2626'">
                         Supprimer
                       </button>
                     </td>
@@ -114,6 +109,8 @@ export class ParticipantList {
         `}
       </div>
     `;
+    
+    console.log('✅ Rendu terminé, HTML injecté dans le conteneur');
   }
 
   renderError(message) {

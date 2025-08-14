@@ -16,6 +16,18 @@ def test_frontend(request):
     with open(test_file, 'r', encoding='utf-8') as f:
         return HttpResponse(f.read(), content_type='text/html')
 
+def test_direct(request):
+    """Vue de test direct du frontend"""
+    test_file = os.path.join(settings.BASE_DIR, 'static', 'test-direct.html')
+    with open(test_file, 'r', encoding='utf-8') as f:
+        return HttpResponse(f.read(), content_type='text/html')
+
+def validate_fix(request):
+    """Vue de validation de la correction"""
+    test_file = os.path.join(settings.BASE_DIR, 'validate-fix.html')
+    with open(test_file, 'r', encoding='utf-8') as f:
+        return HttpResponse(f.read(), content_type='text/html')
+
 def index(request):
     # Vérifier si l'application frontend (dist) existe
     static_index = os.path.join(settings.BASE_DIR, 'static', 'index.html')
