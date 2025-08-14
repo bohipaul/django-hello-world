@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/static/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Direct Frontend</title>
+    <meta name="description" content="Test direct du frontend">
+    
+    <!-- Charger les CSS et JS directement -->
+    <link rel="stylesheet" href="/static/assets/index.DQgNWHwt.css">
+    
+    <style>
+      .debug-panel {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background: white;
+        border: 2px solid #333;
+        padding: 10px;
+        max-width: 300px;
+        font-family: monospace;
+        font-size: 12px;
+        z-index: 9999;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      }
+      .debug-panel h4 {
+        margin: 0 0 10px 0;
+        color: #333;
+      }
+      .debug-log {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        padding: 5px;
+        background: #f5f5f5;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="debug-panel">
+      <h4>🔧 Debug Panel</h4>
+      <div id="debug-log" class="debug-log">Initialisation...</div>
+    </div>
+    
+    <div id="app">
+      <div style="padding: 20px; text-align: center; color: #666;">
+        ⏳ Chargement de l'application...
+      </div>
+    </div>
+
+    <script>
+      // Debug logger
+      const debugLog = document.getElementById('debug-log');
+      const originalConsoleLog = console.log;
+      const originalConsoleError = console.error;
+      
+      function addDebugMessage(type, message) {
+        const time = new Date().toLocaleTimeString();
+        const div = document.createElement('div');
+        div.innerHTML = `<span style="color: ${type === 'error' ? 'red' : 'blue'}">[${time}]</span> ${message}`;
+        debugLog.appendChild(div);
+        debugLog.scrollTop = debugLog.scrollHeight;
+      }
+      
+      console.log = (...args) => {
+        originalConsoleLog(...args);
+        addDebugMessage('log', args.join(' '));
+      };
+      
+      console.error = (...args) => {
+        originalConsoleError(...args);
+        addDebugMessage('error', args.join(' '));
+      };
+      
+      // Test basique
+      console.log('🚀 Page de test chargée');
+      console.log('🔍 Element #app:', document.getElementById('app') ? 'trouvé' : 'MANQUANT');
+      
+      // Vérifier si le CSS est chargé
+      setTimeout(() => {
+        const testDiv = document.createElement('div');
+        testDiv.className = 'card';
+        testDiv.style.display = 'none';
+        document.body.appendChild(testDiv);
+        const styles = getComputedStyle(testDiv);
+        console.log('🎨 CSS card chargé:', styles.backgroundColor !== 'rgba(0, 0, 0, 0)' ? 'OUI' : 'NON');
+        document.body.removeChild(testDiv);
+      }, 100);
+      
+      window.addEventListener('error', (event) => {
+        console.error('❌ Erreur JS:', event.message, 'à', event.filename + ':' + event.lineno);
+      });
+      
+      window.addEventListener('unhandledrejection', (event) => {
+        console.error('❌ Promesse rejetée:', event.reason);
+      });
+    </script>
+    
+    <!-- Charger notre application -->
+    <script type="module" src="/static/assets/index.BEp8Ybeq.js"></script>
+  </body>
+</html>
