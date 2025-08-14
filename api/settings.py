@@ -83,29 +83,32 @@ WSGI_APPLICATION = 'api.wsgi.app'
 
 import os
 
-# Database configuration based on environment variable
-DATABASE_TYPE = os.getenv('DATABASE_TYPE', 'sqlite').lower()
-
-if DATABASE_TYPE == 'postgresql':
-    # PostgreSQL configuration
-    if 'DATABASE_URL' in os.environ:
-        # Parse DATABASE_URL (Heroku/Coolify style)
-        try:
-            import dj_database_url
-            DATABASES = {
-                'default': dj_database_url.parse(os.environ['DATABASE_URL'])
+# Database configuration with smart auto-detection
+# Auto-detect PostgreSQL if DATABASE_URL exists, otherwise use DATABASE_TYPE
+if 'DATABASE_URL' in os.environ:
+    # PostgreSQL detected via DATABASE_URL (Coolify/Heroku style)
+    try:
+        import dj_database_url
+        DATABASES = {
+            'default': dj_database_url.parse(os.environ['DATABASE_URL'])
+        }
+        print(f"📦 Database: PostgreSQL auto-detected via DATABASE_URL")
+    except ImportError:
+        print("Warning: dj_database_url not available, install with: pip install dj-database-url")
+        # Fallback to SQLite
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
             }
-        except ImportError:
-            print("Warning: dj_database_url not available, install with: pip install dj-database-url")
-            # Fallback to SQLite
-            DATABASES = {
-                'default': {
-                    'ENGINE': 'django.db.backends.sqlite3',
-                    'NAME': BASE_DIR / 'db.sqlite3',
-                }
-            }
-    else:
-        # Individual environment variables
+        }
+        print(f"📦 Database: SQLite fallback (dj_database_url missing)")
+else:
+    # Manual configuration via DATABASE_TYPE
+    DATABASE_TYPE = os.getenv('DATABASE_TYPE', 'sqlite').lower()
+    
+    if DATABASE_TYPE == 'postgresql':
+        # PostgreSQL with individual environment variables
         DATABASES = {
             'default': {
                 'ENGINE': 'django.db.backends.postgresql',
@@ -116,14 +119,16 @@ if DATABASE_TYPE == 'postgresql':
                 'PORT': os.getenv('DB_PORT', '5432'),
             }
         }
-else:
-    # SQLite configuration (default)
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+        print(f"📦 Database: PostgreSQL via individual variables")
+    else:
+        # SQLite configuration (default)
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
         }
-    }
+        print(f"📦 Database: SQLite (default or DATABASE_TYPE={DATABASE_TYPE})")
 
 
 # Password validation

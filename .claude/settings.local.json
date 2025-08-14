@@ -16,7 +16,8 @@
       "Bash(npm run dev:*)",
       "Bash(mv:*)",
       "Bash(npm uninstall:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(DATABASE_URL=postgresql://test:test@localhost:5432/test python test_database_config.py)"
     ],
     "deny": [],
     "ask": []
