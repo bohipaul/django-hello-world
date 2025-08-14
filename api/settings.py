@@ -149,6 +149,24 @@ try:
     # WhiteNoise configuration for better static file handling
     WHITENOISE_USE_FINDERS = True
     WHITENOISE_AUTOREFRESH = DEBUG
+    
+    # Additional MIME types for better static file serving
+    WHITENOISE_MIMETYPES = {
+        '.css': 'text/css',
+        '.js': 'application/javascript',  
+        '.svg': 'image/svg+xml',
+        '.html': 'text/html',
+        '.woff': 'font/woff',
+        '.woff2': 'font/woff2',
+        '.ttf': 'font/ttf',
+        '.eot': 'application/vnd.ms-fontobject',
+        '.ico': 'image/x-icon',
+        '.png': 'image/png',
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.gif': 'image/gif',
+        '.webp': 'image/webp',
+    }
 except ImportError:
     # WhiteNoise not available, skip configuration
     pass
