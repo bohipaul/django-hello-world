@@ -26,7 +26,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy all application code (including pre-built frontend)
 COPY . .
 
-# Collect static files (assumes frontend is already built)
+# Run database migrations and collect static files
+RUN python manage.py migrate --noinput
 RUN python manage.py collectstatic --noinput --clear
 
 # Clean up build dependencies
