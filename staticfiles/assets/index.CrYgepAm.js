@@ -962,75 +962,6 @@ class ParticipantChatbot {
     this.nlpManager.addDocument("fr", "contact %name%", "search");
     this.nlpManager.addDocument("fr", "je cherche %name%", "search");
     this.nlpManager.addDocument("fr", "peux tu trouver %name%", "search");
-    this.nlpManager.addNamedEntityText("company", "company", ["fr"], [
-      "entreprise",
-      "société",
-      "compagnie",
-      "boite",
-      "firme",
-      "corporation",
-      "groupe",
-      "organisation",
-      "établissement",
-      "maison",
-      "cabinet",
-      "agence",
-      "bureau",
-      "studio",
-      "atelier",
-      "lab",
-      "laboratoire",
-      "startup",
-      "scale-up",
-      "PME",
-      "TPE",
-      "SARL",
-      "SA",
-      "SAS"
-    ]);
-    this.nlpManager.addNamedEntityText("name", "name", ["fr"], [
-      "nom",
-      "personne",
-      "participant",
-      "membre",
-      "utilisateur",
-      "client",
-      "contact",
-      "profil",
-      "compte",
-      "individu",
-      "collaborateur",
-      "employé",
-      "salarié",
-      "stagiaire",
-      "consultant",
-      "freelance"
-    ]);
-    this.nlpManager.addNamedEntityText("action", "action", ["fr"], [
-      "liste",
-      "affiche",
-      "montre",
-      "trouve",
-      "cherche",
-      "localise",
-      "export",
-      "télécharge",
-      "récupère",
-      "extrait",
-      "génère"
-    ]);
-    this.nlpManager.addNamedEntityText("status", "status", ["fr"], [
-      "actif",
-      "inactif",
-      "activé",
-      "désactivé",
-      "en ligne",
-      "hors ligne",
-      "opérationnel",
-      "suspendu",
-      "validé",
-      "en attente"
-    ]);
     await this.nlpManager.train();
     this.isNlpTrained = true;
     console.log("🤖 Modèle NLP entraîné avec succès");
@@ -1045,11 +976,19 @@ class ParticipantChatbot {
     }
   }
   async processMessage(userMessage) {
-    await this.loadParticipants();
+    console.log("🤖 Début processMessage avec:", userMessage);
+    try {
+      await this.loadParticipants();
+    } catch (error) {
+      console.error("🤖 Erreur lors du chargement des participants:", error);
+    }
+    console.log("🤖 NLP Manager disponible:", !!this.nlpManager, "NLP entraîné:", this.isNlpTrained);
     if (!this.isNlpTrained) {
+      console.log("🤖 Attente de l'entraînement NLP...");
       await new Promise((resolve) => {
         const checkInterval = setInterval(() => {
           if (this.isNlpTrained) {
+            console.log("🤖 NLP maintenant entraîné !");
             clearInterval(checkInterval);
             resolve();
           }
@@ -1058,12 +997,21 @@ class ParticipantChatbot {
     }
     let intent, entities = [], response = { score: 0 };
     if (this.nlpManager) {
-      response = await this.nlpManager.process("fr", userMessage);
-      intent = response.intent;
-      entities = response.entities;
-      console.log("🤖 Intent détecté:", intent, "Confiance:", response.score);
-      console.log("🤖 Entités:", entities);
+      console.log("🤖 Traitement avec NLP.js...");
+      try {
+        response = await this.nlpManager.process("fr", userMessage);
+        intent = response.intent;
+        entities = response.entities || [];
+        console.log("🤖 Réponse NLP complète:", response);
+        console.log("🤖 Intent détecté:", intent, "Confiance:", response.score);
+        console.log("🤖 Entités:", entities);
+      } catch (error) {
+        console.error("🤖 Erreur NLP, fallback manuel:", error);
+        intent = this.detectIntentManually(userMessage);
+        console.log("🤖 Intent détecté (manuel après erreur):", intent);
+      }
     } else {
+      console.log("🤖 Traitement avec patterns manuels...");
       intent = this.detectIntentManually(userMessage);
       console.log("🤖 Intent détecté (manuel):", intent);
     }
@@ -1167,15 +1115,23 @@ ${this.getTopCompanies()}`;
   }
   getCompanySearchResponseNLP(message, entities) {
     let companyName = "";
-    const companyEntity = entities.find((e) => e.entity === "company");
-    if (companyEntity) {
-      companyName = companyEntity.sourceText || companyEntity.utteranceText;
-    } else {
-      const companyMatch = message.match(/(?:chez|entreprise|société)\s+([a-zA-Z0-9\s]+)/i);
-      companyName = companyMatch ? companyMatch[1].trim() : "";
-      if (!companyName) {
-        const chezMatch = message.match(/chez\s+(.+)/i);
-        companyName = chezMatch ? chezMatch[1].trim() : "";
+    const companyPatterns = [
+      /(?:chez|entreprise|société|compagnie|boite|firme)\s+([a-zA-Z0-9\s\-\.]+)/i,
+      /(?:de\s+la?\s+)?(?:société|entreprise|compagnie)\s+([a-zA-Z0-9\s\-\.]+)/i,
+      /(?:participants?|employés?|membres?)\s+(?:de|chez)\s+([a-zA-Z0-9\s\-\.]+)/i
+    ];
+    for (const pattern of companyPatterns) {
+      const match = message.match(pattern);
+      if (match) {
+        companyName = match[1].trim();
+        break;
+      }
+    }
+    if (!companyName) {
+      const words = message.toLowerCase().split(" ");
+      const companyIndex = words.findIndex((w) => ["chez", "entreprise", "société", "compagnie"].includes(w));
+      if (companyIndex !== -1 && companyIndex < words.length - 1) {
+        companyName = words.slice(companyIndex + 1).join(" ").trim();
       }
     }
     if (!companyName) {
@@ -1240,11 +1196,24 @@ ${this.getAvailableCompanies()}`;
   }
   searchParticipantsNLP(message, entities) {
     let searchTerms = "";
-    const nameEntity = entities.find((e) => e.entity === "name");
-    if (nameEntity) {
-      searchTerms = nameEntity.sourceText || nameEntity.utteranceText;
-    } else {
-      searchTerms = message.replace(/(qui|quel|trouve|cherche|liste|participants?|personne)/gi, "").trim();
+    const namePatterns = [
+      /(?:cherche|trouve|qui\s+est|infos?\s+sur|profil\s+de)\s+([a-zA-Z\-\s]+)/i,
+      /(?:contact|détails?|fiche)\s+([a-zA-Z\-\s]+)/i,
+      /([a-zA-Z\-\s]+)\s*$/i
+      // Nom à la fin de la phrase
+    ];
+    for (const pattern of namePatterns) {
+      const match = message.match(pattern);
+      if (match) {
+        searchTerms = match[1].trim();
+        searchTerms = searchTerms.replace(/^(de|le|la|les|du|des|un|une)\s+/i, "");
+        if (searchTerms && searchTerms.length >= 2) {
+          break;
+        }
+      }
+    }
+    if (!searchTerms || searchTerms.length < 2) {
+      searchTerms = message.replace(/(qui|quel|trouve|cherche|liste|participants?|personne|montre|affiche|infos?|informations?|détails?|profil|fiche|contact)/gi, "").trim();
     }
     if (searchTerms.length < 2) {
       return `🔍 Pouvez-vous préciser votre recherche ?
@@ -1459,7 +1428,17 @@ Exemple: *"Qui s'appelle Martin ?"*`;
   }
   addWelcomeMessage() {
     setTimeout(() => {
-      this.addMessage('👋 Salut ! Je suis votre assistant pour les participants. Tapez **"aide"** pour voir mes commandes !', "bot");
+      if (this.nlpManager && this.isNlpTrained) {
+        this.addMessage('👋 Salut ! Je suis votre assistant pour les participants avec **NLP intelligent** ! Tapez **"aide"** pour voir mes commandes !', "bot");
+      } else {
+        this.addMessage('👋 Salut ! Je suis votre assistant pour les participants. 🧠 **Modèle NLP en cours de chargement...** Tapez **"aide"** pour voir mes commandes !', "bot");
+        const checkNLP = setInterval(() => {
+          if (this.nlpManager && this.isNlpTrained) {
+            this.addMessage("✅ **Modèle NLP intelligent activé !** Vous pouvez maintenant poser vos questions en langage naturel.", "bot");
+            clearInterval(checkNLP);
+          }
+        }, 500);
+      }
     }, 1e3);
   }
   async sendMessage() {
@@ -1545,7 +1524,7 @@ Exemple: *"Qui s'appelle Martin ?"*`;
         border-radius: 50%; 
         animation: pulse 1.5s infinite 0.6s;
       "></div>
-      Assistant tape...
+      ${this.nlpManager && this.isNlpTrained ? "🧠 Assistant analyse..." : "⏳ Assistant traite..."}
     `;
     messagesContainer.appendChild(typingDiv);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
