@@ -5,7 +5,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV DJANGO_SETTINGS_MODULE=api.settings
 ENV DEBUG=False
-ENV PORT=8000
+ENV PORT=3000
 
 WORKDIR /app
 
@@ -43,7 +43,7 @@ RUN chown -R django:django /app
 # Switch to non-root user
 USER django
 
-EXPOSE 8000
+EXPOSE 3000
 
 # Start with gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "4", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-", "api.wsgi:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:3000", "--workers", "4", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-", "api.wsgi:app"]
