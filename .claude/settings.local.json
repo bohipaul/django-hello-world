@@ -4,7 +4,9 @@
       "Bash(python manage.py runserver:*)",
       "Bash(python manage.py shell:*)",
       "Bash(npm run build:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npm install:*)",
+      "Bash(start:*)"
     ],
     "deny": [],
     "ask": []
