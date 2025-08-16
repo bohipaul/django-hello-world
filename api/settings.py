@@ -89,25 +89,50 @@ WSGI_APPLICATION = 'api.wsgi.app'
 # Note: Django modules for using databases are not support in serverless
 # environments like Vercel. You can use a database over HTTP, hosted elsewhere.
 
-# PostgreSQL configuration
-import dj_database_url
-
-# Configuration de base de données PostgreSQL
+# Database configuration with SQLite fallback
 DATABASE_URL = os.getenv('DATABASE_URL')
-if DATABASE_URL:
-    DATABASES = {
-        'default': dj_database_url.parse(DATABASE_URL)
-    }
-    print("🐘 Database: PostgreSQL - Configuration depuis DATABASE_URL")
-else:
-    # Fallback vers configuration manuelle SQLite
+
+# Force SQLite if DATABASE_URL contains PostgreSQL config
+USE_SQLITE = os.getenv('USE_SQLITE', 'True').lower() == 'true'
+
+if USE_SQLITE:
+    # Configuration SQLite (par défaut)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
-    print("📁 Database: SQLite - Configuration manuelle")
+    print("📁 Database: SQLite - Configuration forcée")
+elif DATABASE_URL:
+    try:
+        import dj_database_url
+        DATABASES = {
+            'default': dj_database_url.parse(DATABASE_URL)
+        }
+        print("🐘 Database: PostgreSQL - Configuration depuis DATABASE_URL")
+    except ImportError:
+        # Fallback vers SQLite si dj_database_url n'est pas disponible
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
+        print("📁 Database: SQLite - Fallback (dj_database_url indisponible)")
+else:
+    # Configuration manuelle PostgreSQL
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('DB_NAME', 'django_app'),
+            'USER': os.getenv('DB_USER', 'postgres'),
+            'PASSWORD': os.getenv('DB_PASSWORD', ''),
+            'HOST': os.getenv('DB_HOST', 'localhost'),
+            'PORT': os.getenv('DB_PORT', '5432'),
+        }
+    }
+    print("🐘 Database: PostgreSQL - Configuration manuelle")
 
 
 # Password validation
