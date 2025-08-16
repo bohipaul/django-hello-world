@@ -13,8 +13,9 @@ WORKDIR /app
 RUN apk add --no-cache --virtual .build-deps \
     gcc \
     musl-dev \
+    postgresql-dev \
     && apk add --no-cache \
-    sqlite
+    postgresql-libs
 
 # Copy requirements first for better caching
 COPY requirements.txt .
@@ -32,8 +33,7 @@ RUN addgroup -g 1001 -S django && \
 # Copy all application code
 COPY . .
 
-# Run database migrations and collect static files as root
-RUN python manage.py migrate --noinput
+# Collect static files (migrations seront exécutées au runtime)
 RUN python manage.py collectstatic --noinput --clear
 
 # Change ownership of all files to django user
