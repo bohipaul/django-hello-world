@@ -4,8 +4,7 @@ services:
   app:
     build: 
       context: .
-      args:
-        - GIT_REPO=${GIT_REPO:-https://github.com/bohipaul/django-hello-world.git}
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     environment:
