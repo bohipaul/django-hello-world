@@ -33,10 +33,4 @@ services:
       start_period: 40s
     
     restart: unless-stopped
-    networks:
-      - postgres_default
-
-networks:
-  postgres_default:
-    name: ${POSTGRES_NETWORK_NAME:-postgres_default}
-    external: true
+    network_mode: "bridge"
