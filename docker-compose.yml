@@ -33,11 +33,3 @@ services:
       start_period: 40s
     
     restart: unless-stopped
-    networks:
-      - default
-      - postgres-network
-
-networks:
-  postgres-network:
-    name: postgres-network
-    external: true
