@@ -21,14 +21,14 @@ def main():
         from api.wsgi import app
         
         print("Starting Django application with Waitress...")
-        print("Server running on http://127.0.0.1:8000")
+        print("Server running on http://127.0.0.1:8800")
         print("Press Ctrl+C to stop the server")
         
         # Démarrer le serveur
         serve(
             app,
             host='127.0.0.1',
-            port=8000,
+            port=8800,
             threads=4,
             connection_limit=1000,
             cleanup_interval=30,
