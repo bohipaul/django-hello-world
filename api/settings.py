@@ -103,14 +103,14 @@ if USE_SQLITE:
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
-    print("📁 Database: SQLite - Configuration forcée")
+    print("Database: SQLite - Configuration forcée")
 elif DATABASE_URL:
     try:
         import dj_database_url
         DATABASES = {
             'default': dj_database_url.parse(DATABASE_URL)
         }
-        print("🐘 Database: PostgreSQL - Configuration depuis DATABASE_URL")
+        print("Database: PostgreSQL - Configuration depuis DATABASE_URL")
     except ImportError:
         # Fallback vers SQLite si dj_database_url n'est pas disponible
         DATABASES = {
@@ -119,7 +119,7 @@ elif DATABASE_URL:
                 'NAME': BASE_DIR / 'db.sqlite3',
             }
         }
-        print("📁 Database: SQLite - Fallback (dj_database_url indisponible)")
+        print("Database: SQLite - Fallback (dj_database_url indisponible)")
 else:
     # Configuration manuelle PostgreSQL
     DATABASES = {
@@ -132,7 +132,7 @@ else:
             'PORT': os.getenv('DB_PORT', '5432'),
         }
     }
-    print("🐘 Database: PostgreSQL - Configuration manuelle")
+    print("Database: PostgreSQL - Configuration manuelle")
 
 
 # Password validation
@@ -245,6 +245,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://localhost:5173",  # Vite default port
     "http://127.0.0.1:5173",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
     "https://participant.devci.net",
 ]
 
